@@ -1,0 +1,28 @@
+{
+  "name": "seneca-cron",
+  "version": "0.0.1",
+  "description": "Cron plugin for Seneca framework",
+  "main": "lib/cron.js",
+  "scripts": {
+    "test": "node test/cron.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mirceaalexandru/seneca-cron.git"
+  },
+  "keywords": [
+    "seneca",
+    "cron",
+    "plugin"
+  ],
+  "author": "Mircea Alexandru",
+  "license": "BSD",
+
+  "dependencies": {
+    "seneca":         ">=0.4.1",
+    "cron":           ">=1.0.0"
+  },
+
+  "devDependencies": {
+  }
+}
