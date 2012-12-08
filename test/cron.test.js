@@ -74,7 +74,7 @@ function doConfig(){
 
     setTimeout(function(){
       si.log('exit');
-      si.act({role:'cron',cmd:'close'}, function(err, res){
+      si.act({cmd:'close'}, function(err, res){
         si.log('cron plugin closed')
         si.close();
         assert(!err)
