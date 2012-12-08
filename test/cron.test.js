@@ -4,6 +4,7 @@ var seneca   = require('seneca')
 var cron     = require('../lib/cron')
 
 var si
+var jobid
 
 function initSeneca(){
   si = seneca({"log":"print"})
@@ -12,19 +13,44 @@ function initSeneca(){
 }
 
 function doConfig(){
-  si.act({role:'cron',cmd:'configure', time:'* * * * * *', act: function(){
+  si.act({role:'cron',cmd:'addjob', time:'* * * * * *', act: function(){
     si.log('tick-tick');
   }, after: function(){
     si.log('Now I will end');
-  }, timezone: null}, function(err,req){
+  }, timezone: null}, function(error, id){
+    jobid = id
+    si.log('job created', jobid)
+    setTimeoutTests()
+  })
 
+  function setTimeoutTests(){
+    setTimeout(function(){
+      si.log('exit');
+      si.act({role:'cron',cmd:'stopjob', id: jobid}, function(){
+        si.log('stop cron job', jobid)
+        si.close();
+      })
 
-  }, function(){})
+    },(10*1000));
 
-  setTimeout(function(){
-    si.log('exit');
-    si.close();
-  },(2*1000));
+    setTimeout(function(){
+      si.log('exit');
+      si.act({role:'cron',cmd:'startjob', id: jobid}, function(){
+        si.log('start cron job', jobid)
+        si.close();
+      })
+
+    },(20*1000));
+
+    setTimeout(function(){
+      si.log('exit');
+      si.act({role:'cron',cmd:'close'}, function(){
+        si.log('cron plugin closed')
+        si.close();
+      })
+
+    },(30*1000));
+  }
 }
 
 initSeneca();

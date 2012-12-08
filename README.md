@@ -1,4 +1,6 @@
 seneca-cron
-===========
+============
 
-cron plugin implementation for seneca toolkit
+Cron plugin for Seneca framework.
+
+This plugin is just first draft, not ready for usage.
