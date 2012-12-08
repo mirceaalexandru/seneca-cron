@@ -20,19 +20,28 @@ function doConfig(){
     si.log('tick-tick', counter++);
   }, after: function(){
     si.log('Now I will end');
-  }, timezone: null}, function(error, id){
+  }, timezone: null}, function(err, id){
+    assert(!err)
     jobid = id
     si.log('job created', jobid)
     setTimeoutTests()
   })
 
   function setTimeoutTests(){
+    si.act({role:'cron',cmd:'stopjob', id: 'non-existent-job'}, function(err, res){
+      assert(err)
+    })
+
+    si.act({role:'cron',cmd:'startjob', id: 'non-existent-job'}, function(err, res){
+      assert(err)
+    })
+
     // stop after 10s
     setTimeout(function(){
       si.log('exit');
-      si.act({role:'cron',cmd:'stopjob', id: jobid}, function(){
+      si.act({role:'cron',cmd:'stopjob', id: jobid}, function(err, res){
         si.log('stop cron job', jobid)
-        si.close();
+        assert(!err)
       })
     },(10*1000));
 
@@ -51,9 +60,9 @@ function doConfig(){
 
     setTimeout(function(){
       si.log('start again the job', jobid);
-      si.act({role:'cron',cmd:'startjob', id: jobid}, function(){
+      si.act({role:'cron',cmd:'startjob', id: jobid}, function(err, res){
         si.log('start cron job', jobid)
-        si.close();
+        assert(!err)
       })
     },(20*1000));
 
@@ -65,9 +74,10 @@ function doConfig(){
 
     setTimeout(function(){
       si.log('exit');
-      si.act({role:'cron',cmd:'close'}, function(){
+      si.act({role:'cron',cmd:'close'}, function(err, res){
         si.log('cron plugin closed')
         si.close();
+        assert(!err)
       })
     },(30*1000));
   }
