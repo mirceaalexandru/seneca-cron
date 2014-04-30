@@ -1,6 +1,6 @@
 {
   "name": "seneca-cron",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Cron plugin for Seneca framework",
   "main": "lib/cron.js",
   "scripts": {
