@@ -16,7 +16,7 @@ var si
 var jobid
 
 var counter = 0
-var counter2 = 0
+var counterPauseSnaphot = 0
 
 describe('cron', { timeout: 35 *1000 }, function () {
 
@@ -29,17 +29,16 @@ describe('cron', { timeout: 35 *1000 }, function () {
 
   lab.it('can add cron task and remove them', function(done){
 
-    function incrementTick(){
-      si.log('tick-tick', counter++);
-    }
+
     function afterAct(){
       si.log('Now I will end');
     }
-
-    si.act({role:'cron',cmd:'addjob', time:'* * * * * *', act: incrementTick, after: afterAct, timezone: null}, function(err, id){
-
+// FIXME: check syntax-> ho pass action
+   si.act({role:'cron',cmd:'addjob', time:'* * * * * *', act: function incrementTick(){
+     si.log('tick-tick', counter++);
+   }, after: afterAct, timezone: null}, function(err, res){
       expect(err).to.not.exist()
-      jobid = id
+      jobid = res.id
       si.log('job created', jobid)
       setTimeoutTests()
     })
@@ -62,6 +61,7 @@ describe('cron', { timeout: 35 *1000 }, function () {
         si.log('exit');
         si.act({role:'cron',cmd:'stopjob', id: jobid}, function(err, res){
           expect(err).to.not.exist()
+          expect(res.id).to.equal(jobid)
           si.log('stop cron job', jobid)
         })
       },(10*1000));
@@ -71,14 +71,14 @@ describe('cron', { timeout: 35 *1000 }, function () {
 
         si.log('test counter value. Cron job was stopped please wait...');
         expect(counter).to.be.above(7)
-        counter2 = counter
+        counterPauseSnaphot = counter
       },(11*1000));
 
       // test counter stops from sec 10
       setTimeout(function(){
 
         si.log('test counter was stopped');
-        expect(counter).to.be.equal(counter2)
+        expect(counter).to.be.equal(counterPauseSnaphot)
       },(19*1000));
 
       setTimeout(function(){
@@ -94,13 +94,13 @@ describe('cron', { timeout: 35 *1000 }, function () {
       setTimeout(function(){
 
         si.log('test counter was restarted');
-        expect(counter2).to.be.above(counter)
+        expect(counterPauseSnaphot).to.be.below(counter)
       },(25*1000));
 
       setTimeout(function(){
 
         si.log('exit');
-        si.act({cmd: 'close'}, function(err, res){
+        si.act({role:'cron', cmd: 'close'}, function(err, res){
           si.log('cron plugin closed')
           expect(err).to.not.exist()
           si.close(done)
