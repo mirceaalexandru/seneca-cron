@@ -4,7 +4,7 @@
   "description": "Cron plugin for Seneca framework",
   "main": "lib/cron.js",
   "scripts": {
-    "test": "node test/cron.test.js"
+    "test": "lab -v -P test -t 40"
   },
   "repository": {
     "type": "git",
