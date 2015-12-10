@@ -4,7 +4,9 @@
   "description": "Cron plugin for Seneca framework",
   "main": "lib/cron.js",
   "scripts": {
-    "test": "lab -v -P test -t 80"
+    "test": "lab -v -P test -t 80",
+    "cover": "lab -s -P test -r lcov | coveralls",
+    "lint": "lab -P test -dL"
   },
   "repository": {
     "type": "git",
@@ -25,6 +27,7 @@
   },
   "devDependencies": {
     "code": "^2.0.1",
+    "coveralls": "^2.11.4",
     "lab": "^8.0.0"
   }
 }

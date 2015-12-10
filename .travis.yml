@@ -4,3 +4,8 @@ node_js:
   - "4"
   - "0.12"
   - "0.10"
+cache:
+  directories:
+      - node_modules
+after_script:
+  - npm run cover
