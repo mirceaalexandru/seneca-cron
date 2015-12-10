@@ -2,86 +2,103 @@
 
 var seneca   = require('seneca')
 var cron     = require('../lib/cron')
+
+var Lab = require('lab')
+var Code = require('code')
+
+var lab = exports.lab = Lab.script()
+var describe = lab.describe
+var it = lab.it
+const expect = Code.expect;
+
 var assert   = require('assert')
+
+var senecaOpts = {"log":"print"}
 var si
 var jobid
 
 var counter = 0
 var counter2 = 0
 
-function initSeneca(){
-  si = seneca({"log":"print"})
-  si.log('start');
-  si.use(cron, {})
-}
+describe('cron',{ timeout: 30000 }, function () {
 
-function doConfig(){
-  si.act({role:'cron',cmd:'addjob', time:'* * * * * *', act: function(){
-    si.log('tick-tick', counter++);
-  }, after: function(){
-    si.log('Now I will end');
-  }, timezone: null}, function(err, id){
-    assert(!err)
-    jobid = id
-    si.log('job created', jobid)
-    setTimeoutTests()
+  lab.beforeEach(function initSeneca(done){
+    si = seneca(senecaOpts)
+    si.log('start');
+    si.use(cron, {})
   })
 
-  function setTimeoutTests(){
-    si.act({role:'cron',cmd:'stopjob', id: 'non-existent-job'}, function(err, res){
-      assert(err)
+  it('can add cron task and remove them', function(done){
+
+    function incrementTick(){
+      si.log('tick-tick', counter++);
+    }
+    function afterAct(){
+      si.log('Now I will end');
+    }
+
+    si.act({role:'cron',cmd:'addjob', time:'* * * * * *', act: incrementTick, after: afterAct, timezone: null}, function(err, id){
+      expect(err).to.not.exist()
+      jobid = id
+      si.log('job created', jobid)
+      setTimeoutTests()
     })
 
-    si.act({role:'cron',cmd:'startjob', id: 'non-existent-job'}, function(err, res){
-      assert(err)
-    })
 
-    // stop after 10s
-    setTimeout(function(){
-      si.log('exit');
-      si.act({role:'cron',cmd:'stopjob', id: jobid}, function(err, res){
-        si.log('stop cron job', jobid)
-        assert(!err)
+    function setTimeoutTests(){
+      si.act({role:'cron',cmd:'stopjob', id: 'non-existent-job'}, function(err, res){
+        expect(err).to.exist()
       })
-    },(10*1000));
 
-    // test counter value
-    setTimeout(function(){
-      si.log('test counter value. Cron job was stopped please wait...');
-      assert(counter > 7)
-      counter2 = counter
-    },(11*1000));
-
-    // test counter stops from sec 10
-    setTimeout(function(){
-      si.log('test counter was stopped');
-      assert.equal(counter2, counter)
-    },(19*1000));
-
-    setTimeout(function(){
-      si.log('start again the job', jobid);
-      si.act({role:'cron',cmd:'startjob', id: jobid}, function(err, res){
-        si.log('start cron job', jobid)
-        assert(!err)
+      si.act({role:'cron',cmd:'startjob', id: 'non-existent-job'}, function(err, res){
+        expect(err).to.exist()
       })
-    },(20*1000));
 
-    // test counter increase value
-    setTimeout(function(){
-      si.log('test counter was restarted');
-      assert(counter2 < counter)
-    },(25*1000));
+      // stop after 10s
+      setTimeout(function(){
+        si.log('exit');
+        si.act({role:'cron',cmd:'stopjob', id: jobid}, function(err, res){
+          expect(err).to.not.exist()
+          si.log('stop cron job', jobid)
+        })
+      },(10*1000));
 
-    setTimeout(function(){
-      si.log('exit');
-      si.act({cmd:'close'}, function(err, res){
-        si.log('cron plugin closed')
-        si.close();
-        assert(!err)
-      })
-    },(30*1000));
-  }
-}
+      // test counter value
+      setTimeout(function(){
+        si.log('test counter value. Cron job was stopped please wait...');
+        expect(counter).to.be.above(7)
+        counter2 = counter
+      },(11*1000));
 
-initSeneca();
-doConfig();
+      // test counter stops from sec 10
+      setTimeout(function(){
+        si.log('test counter was stopped');
+        expect(counter).to.be.equal(counter2)
+      },(19*1000));
+
+      setTimeout(function(){
+        si.log('start again the job', jobid);
+        si.act({role:'cron',cmd:'startjob', id: jobid}, function(err, res){
+          si.log('start cron job', jobid)
+          expect(err).to.not.exist()
+        })
+      },(20*1000));
+
+      // test counter increase value
+      setTimeout(function(){
+        si.log('test counter was restarted');
+        expect(counter2).to.be.above(counter)
+      },(25*1000));
+
+      setTimeout(function(){
+        si.log('exit');
+        si.act({cmd:'close'}, function(err, res){
+          si.log('cron plugin closed')
+          expect(err).to.not.exist()
+          si.close(done);
+        })
+      },(30*1000));
+    }
+  })
+})
+
