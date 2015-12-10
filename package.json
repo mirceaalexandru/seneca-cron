@@ -18,7 +18,7 @@
     "plugin"
   ],
   "author": "Mircea Alexandru",
-  "license": "BSD",
+  "license": "BSD-3-Clause",
   "dependencies": {
     "cron": ">= 1.0.0",
     "lodash": "^3.10.1",
