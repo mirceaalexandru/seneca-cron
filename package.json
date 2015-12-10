@@ -1,6 +1,6 @@
 {
   "name": "seneca-cron",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Cron plugin for Seneca framework",
   "main": "lib/cron.js",
   "scripts": {
@@ -18,10 +18,10 @@
   "author": "Mircea Alexandru",
   "license": "BSD",
   "dependencies": {
-    "seneca": ">=0.4.1",
-    "cron": ">=1.0.0",
-    "uuid": "~1.4.1",
-    "underscore": "~1.6.0"
+    "seneca": ">= 0.8.0",
+    "cron": ">= 1.0.0",
+    "uuid": "~2.0.1",
+    "underscore": "~1.8.3"
   },
   "devDependencies": {}
 }
