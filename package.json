@@ -18,6 +18,13 @@
     "plugin"
   ],
   "author": "Mircea Alexandru",
+  "contributors": [
+    {
+      "name": "Adriean Khisbe",
+      "email": "adriean.khisbe@live.fr",
+      "url": "https://github.com/AdrieanKhisbe/"
+    }
+  ],
   "license": "BSD-3-Clause",
   "dependencies": {
     "cron": ">= 1.0.0",
