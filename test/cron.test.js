@@ -12,13 +12,9 @@ var it = lab.it
 const expect = Code.expect;
 
 var senecaOpts = {"log": "print"}
-var si
-var jobid
+var si, jobid, counter, counterPauseSnaphot
 
-var counter = 0
-var counterPauseSnaphot = 0
-
-describe('cron', {timeout: 35 * 1000}, function () {
+describe('cron', {timeout: 10 * 1000}, function () {
 
 
     function afterAct() {
@@ -33,6 +29,8 @@ describe('cron', {timeout: 35 * 1000}, function () {
         si = seneca(senecaOpts)
         si.log.debug('start');
         si.use(cron, {})
+        counter = 0
+        counterPauseSnaphot = 0
         done()
     })
 
@@ -72,6 +70,33 @@ describe('cron', {timeout: 35 * 1000}, function () {
         })
     })
 
+    it('really start task and stop them', function (done) {
+
+        si.act({
+            role: 'cron', cmd: 'addjob', time: '* * * * * *', act: incrementTick, after: afterAct, timezone: null
+        }, function (err, res) {
+
+            expect(err).to.not.exist()
+            jobid = res.id
+            si.log.debug('job created', jobid)
+
+            setTimeout(function () {
+
+                si.act({role: 'cron', cmd: 'stopjob', id: jobid}, function (err, res) {
+                    expect(err).to.not.exist()
+                    expect(res.id).to.equal(jobid)
+                    expect(counter).to.be.equal(4)
+                    si.log.debug('stop cron job', jobid)
+
+                    setTimeout(function () {
+                        expect(counter).to.be.equal(4)
+                        si.close(done)
+                    }, (1500));
+                })
+            }, (4 * 1000 + 100));
+        })
+    })
+
     it('I can add, stop and restart a task', function (done) {
 
         si.act({
@@ -81,63 +106,40 @@ describe('cron', {timeout: 35 * 1000}, function () {
             expect(err).to.not.exist()
             jobid = res.id
             si.log.debug('job created', jobid)
-            setTimeoutTests()
 
-        })
-        // MAYBE: use async instead!
-        function setTimeoutTests() {
-            // stop after 10s
             setTimeout(function () {
 
-                si.log.debug('exit');
+                si.log.debug('stop the task');
                 si.act({role: 'cron', cmd: 'stopjob', id: jobid}, function (err, res) {
                     expect(err).to.not.exist()
                     expect(res.id).to.equal(jobid)
-                    si.log.debug('stop cron job', jobid)
+                    expect(counter).to.be.equal(2)
+                    counterPauseSnaphot = counter
                 })
-            }, (10 * 1000));
+            }, (2 * 1000 +100));
 
-            // test counter value
             setTimeout(function () {
 
-                si.log.debug('test counter value. Cron job was stopped please wait...');
-                expect(counter).to.be.above(7)
-                counterPauseSnaphot = counter
-            }, (11 * 1000));
-
-            // test counter stops from sec 10
-            setTimeout(function () {
-
-                si.log.debug('test counter was stopped');
                 expect(counter).to.be.equal(counterPauseSnaphot)
-            }, (19 * 1000));
-
-            setTimeout(function () {
-
-                si.log.debug('start again the job', jobid);
+                si.log.debug('restart the task');
                 si.act({role: 'cron', cmd: 'startjob', id: jobid}, function (err, res) {
-                    si.log.debug('start cron job', jobid)
                     expect(err).to.not.exist()
+                    expect(res.id).to.equal(jobid)
                 })
-            }, (20 * 1000));
+            }, (4 * 1000 + 100));
 
-            // test counter increase value
             setTimeout(function () {
 
                 si.log.debug('test counter was restarted');
                 expect(counterPauseSnaphot).to.be.below(counter)
-            }, (25 * 1000));
-
-            setTimeout(function () {
-
-                si.log.debug('exit');
                 si.act({role: 'cron', cmd: 'close'}, function (err, res) {
                     si.log.debug('cron plugin closed')
                     expect(err).to.not.exist()
                     si.close(done)
                 })
-            }, (30 * 1000));
-        }
+            }, (6 * 1000 + 100));
+
+        })
     })
 })
 
