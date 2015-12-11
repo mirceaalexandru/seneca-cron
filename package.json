@@ -17,7 +17,11 @@
     "cron",
     "plugin"
   ],
-  "author": "Mircea Alexandru",
+  "author": {
+    "name": "Mircea Alexandru",
+    "email": "mircea.alexandru@gmail.com",
+    "url": "http://www.alexandrumircea.ro"
+  },
   "contributors": [
     {
       "name": "Adriean Khisbe",
