@@ -40,7 +40,7 @@ function someAction() {
     si.log.debug('tick-tick');
 }
 
-si.act({ role: 'cron', cmd: 'addjob', time: '* * * * * *', act: someAction(), after: afterAct, timezone: null }, function (err, res) {
+si.act({ role: 'cron', cmd: 'addjob', time: '* * * * * *', act: someAction(), after: null, timezone: null }, function (err, res) {
   jobid = res.id
 })
 ```
@@ -113,6 +113,12 @@ Supported ranges types:
  * Day of Month: 1-31
  * Months: 0-11
  * Day of Week: 0-6
+
+
+## Contributing
+
+The [Senecajs](http://senecajs.org) org encourage open participation. 
+If you feel you can help in any way, be it with documentation, examples, extra testing, or new features please get in touch.
 
 
 [travis-badge]: https://api.travis-ci.org/mirceaalexandru/seneca-cron.svg
