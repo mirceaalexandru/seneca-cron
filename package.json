@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "code": "^2.0.1",
-    "seneca": "plugin",
+    "seneca": ">= 0.9.0",
     "coveralls": "^2.11.4",
     "lab": "^8.0.0"
   }
